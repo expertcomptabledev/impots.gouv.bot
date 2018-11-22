@@ -1,5 +1,5 @@
 {
-  "name": "impots.gouv.bot",
+  "name": "@expertcomptabledev/impots.gouv.bot",
   "version": "0.1.1",
   "description": "A bot to crawl impots.gouv.fr",
   "private": false,

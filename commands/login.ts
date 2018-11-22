@@ -1,4 +1,4 @@
-import { logJSON, logError, log, logSuccess } from './helpers';
+import { logJSON, logError, log, logSuccess, getCredentials } from './helpers';
 import * as actions from './actions';
 const inquirer = require('inquirer');
 
@@ -13,17 +13,7 @@ export const login = (program: any) => {
 
             try {
 
-                options.email = options.email || await inquirer.prompt([{
-                    name: 'email',
-                    message: 'Enter your email'
-                }]).then(res => res.password);
-
-                options.password = options.password || await inquirer.prompt([{
-                    name: 'password',
-                    type: 'password',
-                    message: 'Enter your password'
-                }]).then(res => res.password);
-
+                options = await getCredentials(options);
                 await actions.login(options.email, options.password);
                 logSuccess('Logged in your impot.gouv.fr account');
 

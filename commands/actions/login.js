@@ -27,7 +27,7 @@ exports.login = function (email, password, close) {
                 case 1:
                     _a.trys.push([1, 13, , 18]);
                     return [4 /*yield*/, puppeteer.launch({
-                            headless: true,
+                            headless: false,
                             args: [
                                 '--no-sandbox',
                                 '--disable-setuid-sandbox',

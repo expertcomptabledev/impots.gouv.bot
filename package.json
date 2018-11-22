@@ -39,6 +39,7 @@
     "chalk": "^2.4.1",
     "clui": "^0.3.6",
     "commander": "^2.19.0",
+    "es6-promise-pool": "^2.5.0",
     "inquirer": "^6.2.0",
     "prettyjson": "^1.2.1",
     "puppeteer": "^1.10.0",

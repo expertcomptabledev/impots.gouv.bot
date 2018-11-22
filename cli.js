@@ -8,4 +8,5 @@ program.version(pkg.version);
 // init login command
 commands.login(program);
 commands.companies(program);
+commands.declarations(program);
 program.parse(process.argv);

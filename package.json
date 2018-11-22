@@ -2,6 +2,7 @@
   "name": "impots.gouv.bot",
   "version": "0.1.1",
   "description": "A bot to crawl impots.gouv.fr",
+  "private": false,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,7 +16,10 @@
     "impots.gouv.fr",
     "crawler"
   ],
-  "author": "Pierre BOURDU",
+  "author": { 
+    "name": "Pierre BOURDU", 
+    "email": "pierre@qrea.io"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/expertcomptabledev/impots.gouv.bot/issues"

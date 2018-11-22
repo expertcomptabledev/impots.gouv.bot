@@ -1,0 +1,27 @@
+{
+  "name": "@expertcomptabledev/impots.gouv.bot",
+  "version": "0.1.0",
+  "description": "A bot to crawl impots.gouv.fr",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/expertcomptabledev/impots.gouv.bot.git"
+  },
+  "keywords": [
+    "impots",
+    "impots.gouv.fr",
+    "crawler"
+  ],
+  "author": "Pierre BOURDU",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/expertcomptabledev/impots.gouv.bot/issues"
+  },
+  "homepage": "https://github.com/expertcomptabledev/impots.gouv.bot#readme",
+  "devDependencies": {
+    "typescript": "^3.1.6"
+  }
+}

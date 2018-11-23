@@ -57,7 +57,7 @@ export const declarations = async (type: string, email: string, password: string
 
                     // année dans child h1 > span
                     let year = tableau.querySelector('h1 > span').textContent.trim().match(/\d{4}/g);
-                    if(Array.isArray(year) && year.length === 1){
+                    if(Array.isArray(year) && year.length === 1) {
                         year = year[0];
                     }
 

@@ -9,13 +9,13 @@ export const declarations = (program: any) => {
 
     program
         .command('declarations')
+        .description('Get your companies')
         .option('-e, --email <your-email>', 'Email used to create your impots.gouv.fr account')
         .option('-p, --password <your-password>' , 'Password')
-        .option('--siren <value>' , 'Companie\'s SIREN')
-        .option('-s, --save' , 'Specify saving pdf')
-        .option('-o, --out' , 'Specify out directory to save pdf')
-        .option('-t, --type' , 'Specify declaration type, default value is tva')
-        .description('Get companie\'s declarations by type')
+        .option('-s, --siren <value>' , 'Companie\'s SIREN')
+        .option('-S, --save' , 'Specify saving pdf')
+        .option('-o, --out <value>' , 'Specify out directory to save pdf')
+        .option('-t, --type <value>' , 'Specify declaration type, default value is tva')
         .action(async (options) => {
 
             try {
@@ -23,7 +23,7 @@ export const declarations = (program: any) => {
                 options = await getCredentials(options);
                 options.type = options.type || 'tva';
                 const declarations = await actions.declarations(options.type, options.email, options.password, options.siren, options.save, options.out);
-                logSuccess(`Got all ${options.type} declarations`);
+                logSuccess(`Got declarations`);
                 logJSON(declarations);
 
             } catch (error) {

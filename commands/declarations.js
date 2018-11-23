@@ -15,7 +15,7 @@ exports.declarations = function (program) {
         .option('-s, --save', 'Specify saving pdf')
         .option('-o, --out', 'Specify out directory to save pdf')
         .option('-t, --type', 'Specify declaration type, default value is tva')
-        .description('Get your companies')
+        .description('Get companie\'s declarations by type')
         .action(function (options) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
         var declarations_1, error_1;
         return tslib_1.__generator(this, function (_a) {

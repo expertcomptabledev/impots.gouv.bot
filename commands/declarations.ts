@@ -15,7 +15,7 @@ export const declarations = (program: any) => {
         .option('-s, --save' , 'Specify saving pdf')
         .option('-o, --out' , 'Specify out directory to save pdf')
         .option('-t, --type' , 'Specify declaration type, default value is tva')
-        .description('Get your companies')
+        .description('Get companie\'s declarations by type')
         .action(async (options) => {
 
             try {

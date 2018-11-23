@@ -56,12 +56,15 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                     return [4 /*yield*/, get_fiscal_links_1.getFiscalLinks(page)];
                 case 2:
                     links = _d.sent();
-                    logger_1.log('got all fiscal links here :');
-                    logger_1.logJSON(links);
                     _c = (_b = page).goto;
                     return [4 /*yield*/, getLink(links, type)];
-                case 3: return [4 /*yield*/, _c.apply(_b, [_d.sent(), { timeout: const_1.TIMEOUT }])];
+                case 3: 
+                // log('got all fiscal links here :')
+                // logJSON(links);
+                return [4 /*yield*/, _c.apply(_b, [_d.sent(), { timeout: const_1.TIMEOUT }])];
                 case 4:
+                    // log('got all fiscal links here :')
+                    // logJSON(links);
                     _d.sent();
                     return [4 /*yield*/, page.evaluate(function () {
                             return Array.from(document.querySelectorAll('.tableau_pliable'))

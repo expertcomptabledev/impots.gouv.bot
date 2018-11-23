@@ -23,7 +23,7 @@ export const login = async (email: string, password: string, close = true): Prom
     try {
 
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             args: [
               '--no-sandbox',
               '--disable-setuid-sandbox',

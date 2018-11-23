@@ -53,7 +53,7 @@ const companies = await impots.companies(email, password);
 console.log(companies);
 ```
 Must print in your console a table with your companie list.
-Below an example of list formatted into table using `prettyjson` :
+Below an example of list formatted into table using `tty-table` :
 ```
   ┌───────┬───────────┬──────────────────────────────┐
   │   #   │   SIREN   │             Name             │

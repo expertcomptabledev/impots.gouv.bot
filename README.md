@@ -2,6 +2,12 @@
 
 **Impots.gouv.bot** is a tool to crawl http://www.impots.gouv.fr pro account, and get all informations available with `cli` or with `node module`.
 
+## Requirements
+
+To use impots.gouv.bot, you must install :
+
+* [node.js](https://nodejs.org/en/) >= 9.X
+
 ## Get started
 
 1. Install cli using npm

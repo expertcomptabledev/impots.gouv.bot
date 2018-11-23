@@ -48,3 +48,23 @@ npm install @expertcomptabledev/impots.gouv.bot --save
 ```
 import impots from '@expertcomptabledev/impots.gouv.bot';
 ```
+
+3. Use it !
+
+```
+const companies = await impots.companies(email, password);
+console.log(companies);
+```
+
+Must print in your console a table with your companie list. Below an example of list formatted into table using `prettyjson` :
+
+```
+  ┌───────┬───────────┬──────────────────────────────┐
+  │   #   │   SIREN   │             Name             │
+  ├───────┼───────────┼──────────────────────────────┤
+  │   1   │ XXX1X6X9X │ SAS XLA AXSUXXNXES           │
+  ├───────┼───────────┼──────────────────────────────┤
+  │   2   │ XX9X614X5 │ SAS XXXEXCAP XXXXNCE         │
+  ├───────┼───────────┼──────────────────────────────┤
+  ...
+```

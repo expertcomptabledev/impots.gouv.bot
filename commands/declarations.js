@@ -29,8 +29,7 @@ exports.declarations = function (program) {
                     return [4 /*yield*/, actions.declarations(options.type, options.email, options.password, options.siren, options.save, options.out)];
                 case 2:
                     declarations_1 = _a.sent();
-                    helpers_1.logSuccess("Got declarations");
-                    helpers_1.logJSON(declarations_1);
+                    helpers_1.logSuccess("Got all " + options.type + " declarations");
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();

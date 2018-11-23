@@ -10,6 +10,8 @@ var PromisePool = require('es6-promise-pool');
 var _a = require('fs'), mkdirSync = _a.mkdirSync, existsSync = _a.existsSync, writeFile = _a.writeFile;
 var join = require('path').join;
 var promisify = require('util').promisify;
+var CLI = require('clui');
+var Spinner = CLI.Spinner;
 var typesDeclaration = {
     'tva': 'DeclarationsTVA'
 };
@@ -18,7 +20,7 @@ exports.declarations = function (type, email, password, siren, save, out, close)
     if (out === void 0) { out = undefined; }
     if (close === void 0) { close = true; }
     return tslib_1.__awaiter(_this, void 0, void 0, function () {
-        var clean, getLink, _a, browser, page, links, _b, _c, declarationsByYear, linksToScrap, count_1, concurrency, promiseProducer, pool;
+        var status, clean, getLink, _a, browser, page, links, _b, _c, declarationsByYear, linksToScrap_1, count_1, concurrency, promiseProducer, pool, error_1;
         var _this = this;
         return tslib_1.__generator(this, function (_d) {
             switch (_d.label) {
@@ -29,6 +31,8 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                     else {
                         type = typesDeclaration[type];
                     }
+                    status = new Spinner('Getting declarations, please wait...');
+                    status.start();
                     clean = function (browser, page) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
                         return tslib_1.__generator(this, function (_a) {
                             switch (_a.label) {
@@ -53,16 +57,19 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                     return [4 /*yield*/, get_fiscal_account_1.getFiscalAccount(email, password, siren, false)];
                 case 1:
                     _a = _d.sent(), browser = _a.browser, page = _a.page;
-                    return [4 /*yield*/, get_fiscal_links_1.getFiscalLinks(page)];
+                    _d.label = 2;
                 case 2:
+                    _d.trys.push([2, 13, , 15]);
+                    return [4 /*yield*/, get_fiscal_links_1.getFiscalLinks(page)];
+                case 3:
                     links = _d.sent();
                     _c = (_b = page).goto;
                     return [4 /*yield*/, getLink(links, type)];
-                case 3: 
+                case 4: 
                 // log('got all fiscal links here :')
                 // logJSON(links);
                 return [4 /*yield*/, _c.apply(_b, [_d.sent(), { timeout: const_1.TIMEOUT }])];
-                case 4:
+                case 5:
                     // log('got all fiscal links here :')
                     // logJSON(links);
                     _d.sent();
@@ -113,27 +120,27 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                                 };
                             });
                         })];
-                case 5:
+                case 6:
                     declarationsByYear = _d.sent();
-                    linksToScrap = [];
+                    linksToScrap_1 = [];
                     declarationsByYear.forEach(function (declarationYear) {
                         var declarations = declarationYear.declarations;
                         declarations.forEach(function (d) {
-                            linksToScrap.push(d.receiptLink);
-                            linksToScrap.push(d.declarationLink);
+                            linksToScrap_1.push(d.receiptLink);
+                            linksToScrap_1.push(d.declarationLink);
                         });
                     });
-                    if (!(save === true)) return [3 /*break*/, 8];
+                    if (!(save === true)) return [3 /*break*/, 9];
                     // logJSON(linksToScrap);
                     return [4 /*yield*/, page.setDefaultNavigationTimeout(30 * 1000 * 2)];
-                case 6:
+                case 7:
                     // logJSON(linksToScrap);
                     _d.sent();
                     count_1 = 0, concurrency = 3;
                     promiseProducer = function () {
-                        if (count_1 < linksToScrap.length) {
+                        if (count_1 < linksToScrap_1.length) {
                             count_1++;
-                            return exports.getDocument(browser, linksToScrap[count_1 - 1], out);
+                            return exports.getDocument(browser, linksToScrap_1[count_1 - 1], out); // TODO : better log avancement
                         }
                         else {
                             return null;
@@ -141,16 +148,26 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                     };
                     pool = new PromisePool(promiseProducer, concurrency);
                     return [4 /*yield*/, pool.start()];
-                case 7:
-                    _d.sent();
-                    _d.label = 8;
                 case 8:
-                    if (!(close === true)) return [3 /*break*/, 10];
-                    return [4 /*yield*/, clean(browser, page)];
+                    _d.sent();
+                    _d.label = 9;
                 case 9:
+                    status.stop();
+                    if (!(close === true)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, clean(browser, page)];
+                case 10:
                     _d.sent();
                     return [2 /*return*/, declarationsByYear];
-                case 10: return [2 /*return*/, { browser: browser, page: page }];
+                case 11: return [2 /*return*/, { browser: browser, page: page }];
+                case 12: return [3 /*break*/, 15];
+                case 13:
+                    error_1 = _d.sent();
+                    status.stop();
+                    return [4 /*yield*/, clean(browser, page)];
+                case 14:
+                    _d.sent();
+                    throw error_1;
+                case 15: return [2 /*return*/];
             }
         });
     });
@@ -158,7 +175,7 @@ exports.declarations = function (type, email, password, siren, save, out, close)
 exports.getDocument = function (browser, link, out) {
     if (out === void 0) { out = './out'; }
     return tslib_1.__awaiter(_this, void 0, void 0, function () {
-        var page, menuSelector, error_1, links, linkPrint, response, myUrl, params, idPdf, downloadLink, file, arr, buffer, filename, write;
+        var page, menuSelector, error_2, links, linkPrint, response, myUrl, params, idPdf, downloadLink, file, arr, buffer, filename, write;
         return tslib_1.__generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -184,7 +201,7 @@ exports.getDocument = function (browser, link, out) {
                     _a.sent();
                     return [3 /*break*/, 6];
                 case 5:
-                    error_1 = _a.sent();
+                    error_2 = _a.sent();
                     logger_1.logError('can\t load print menu');
                     return [3 /*break*/, 6];
                 case 6: return [4 /*yield*/, page.evaluate(function (menuSelector) {
@@ -243,12 +260,11 @@ exports.getDocument = function (browser, link, out) {
                         mkdirSync(out);
                     arr = new Uint8Array(file);
                     buffer = Buffer.from(arr);
-                    filename = join(__dirname, out + "/" + idPdf + ".pdf");
+                    filename = join(process.cwd(), out + "/" + idPdf + ".pdf");
                     write = promisify(writeFile);
                     return [4 /*yield*/, write(filename, buffer)];
                 case 14:
                     _a.sent();
-                    logger_1.logSuccess("Got PDF " + idPdf + " and save it to " + filename);
                     page.close();
                     return [2 /*return*/, { link: link, idPdf: idPdf, filename: filename }];
             }

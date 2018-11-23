@@ -7,6 +7,8 @@ var PromisePool = require('es6-promise-pool');
 const { mkdirSync, existsSync, writeFile } = require('fs')
 const { join } = require('path');
 const { promisify } = require('util');
+const CLI = require('clui');
+const Spinner = CLI.Spinner;
 
 const typesDeclaration = {
     'tva': 'DeclarationsTVA',
@@ -20,6 +22,9 @@ export const declarations = async (type: string, email: string, password: string
         type = typesDeclaration[type];
     }
 
+    const status = new Spinner('Getting declarations, please wait...');
+    status.start();
+
     const clean = async (browser, page) => {
         await page.close();
         await browser.close();
@@ -32,107 +37,117 @@ export const declarations = async (type: string, email: string, password: string
             throw new Error('No links provided')
         }
     }
-    
+
     const { browser, page } = await getFiscalAccount(email, password, siren, false);
 
-    const links = await getFiscalLinks(page);
+    try {
+    
+        const links = await getFiscalLinks(page);
 
-    // log('got all fiscal links here :')
-    // logJSON(links);
+        // log('got all fiscal links here :')
+        // logJSON(links);
 
-    await page.goto(await getLink(links, type), { timeout: TIMEOUT });
+        await page.goto(await getLink(links, type), { timeout: TIMEOUT });
 
-    // get all tva declarations
-    const declarationsByYear = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll('.tableau_pliable'))
-            .map((tableau: any) => {
+        // get all tva declarations
+        const declarationsByYear = await page.evaluate(() => {
+            return Array.from(document.querySelectorAll('.tableau_pliable'))
+                .map((tableau: any) => {
 
-                // année dans child h1 > span
-                const year = tableau.querySelector('h1 > span').textContent.trim();
+                    // année dans child h1 > span
+                    const year = tableau.querySelector('h1 > span').textContent.trim();
 
-                // déclaration dans les tr SAUF la première qui contient les entêtes
-                const lines = tableau.querySelectorAll('tr');
+                    // déclaration dans les tr SAUF la première qui contient les entêtes
+                    const lines = tableau.querySelectorAll('tr');
 
-                const getPeriod = (periodText) => {
-                    if(periodText.indexOf("«") > -1){
-                        periodText.split("«")[0]
-                    } else {
-                        return periodText;
+                    const getPeriod = (periodText) => {
+                        if(periodText.indexOf("«") > -1){
+                            periodText.split("«")[0]
+                        } else {
+                            return periodText;
+                        }
                     }
-                }
 
-                const getReceiptCode = (periodText) => {
-                    if(periodText.indexOf("«") > -1){
-                        periodText.split("«")[1].slice(0, -1)
-                    } else {
-                        return periodText;
+                    const getReceiptCode = (periodText) => {
+                        if(periodText.indexOf("«") > -1){
+                            periodText.split("«")[1].slice(0, -1)
+                        } else {
+                            return periodText;
+                        }
                     }
-                }
 
-                const declarations = [];
-                for (let index = 1; index < lines.length; index++) {
-                    const line = lines[index];
-                    // get td
-                    const cells = line.querySelectorAll('td');
-                    declarations.push({
+                    const declarations = [];
+                    for (let index = 1; index < lines.length; index++) {
+                        const line = lines[index];
+                        // get td
+                        const cells = line.querySelectorAll('td');
+                        declarations.push({
+                            year: year,
+                            period: getPeriod(cells[0].textContent.trim()),
+                            receiptCode: getReceiptCode(cells[0].textContent.trim()),
+                            taxSystem: cells[1].textContent.trim(),
+                            type: cells[2].textContent.trim(),
+                            depositMode: cells[3].textContent.trim(),
+                            depositDate: cells[4].textContent.trim(),
+                            amount: cells[5].textContent.trim(),
+                            declarationLink: cells[0].querySelectorAll('a')[0].href,
+                            receiptLink: cells[0].querySelectorAll('a')[1] ? cells[0].querySelectorAll('a')[1].href : undefined
+                        })
+                    }
+
+                    return {
                         year: year,
-                        period: getPeriod(cells[0].textContent.trim()),
-                        receiptCode: getReceiptCode(cells[0].textContent.trim()),
-                        taxSystem: cells[1].textContent.trim(),
-                        type: cells[2].textContent.trim(),
-                        depositMode: cells[3].textContent.trim(),
-                        depositDate: cells[4].textContent.trim(),
-                        amount: cells[5].textContent.trim(),
-                        declarationLink: cells[0].querySelectorAll('a')[0].href,
-                        receiptLink: cells[0].querySelectorAll('a')[1] ? cells[0].querySelectorAll('a')[1].href : undefined
-                    })
-                }
+                        declarations: declarations
+                    }
 
-                return {
-                    year: year,
-                    declarations: declarations
-                }
+                })
+        });
 
+        // construct list
+        const linksToScrap = [];
+        declarationsByYear.forEach(declarationYear => {
+            const declarations = declarationYear.declarations;
+            declarations.forEach(d => {
+                linksToScrap.push(d.receiptLink);
+                linksToScrap.push(d.declarationLink);
             })
-    });
+        });
 
-    // construct list
-    const linksToScrap = [];
-    declarationsByYear.forEach(declarationYear => {
-        const declarations = declarationYear.declarations;
-        declarations.forEach(d => {
-            linksToScrap.push(d.receiptLink);
-            linksToScrap.push(d.declarationLink);
-        })
-    });
+        if(save === true){
 
-    if(save === true){
+            // logJSON(linksToScrap);
+            await page.setDefaultNavigationTimeout(30 * 1000 * 2);
 
-        // logJSON(linksToScrap);
-        await page.setDefaultNavigationTimeout(30 * 1000 * 2);
+            let count = 0, concurrency = 3;
+            var promiseProducer = function () {
 
-        let count = 0, concurrency = 3;
-        var promiseProducer = function () {
+            if(count < linksToScrap.length) {
+                count++;
+                return getDocument(browser, linksToScrap[count - 1], out); // TODO : better log avancement
+                } else {
+                    return null;
+                }
 
-        if(count < linksToScrap.length) {
-            count++;
-            return getDocument(browser, linksToScrap[count - 1], out);
-            } else {
-                return null;
             }
+
+            var pool = new PromisePool(promiseProducer, concurrency);
+            await pool.start();
 
         }
 
-        var pool = new PromisePool(promiseProducer, concurrency);
-        await pool.start();
+        status.stop();
 
-    }
+        if(close === true){
+            await clean(browser, page);
+            return declarationsByYear;
+        } else {
+            return { browser, page };
+        }
 
-    if(close === true){
+    } catch (error) {
+        status.stop();
         await clean(browser, page);
-        return declarationsByYear;
-    } else {
-        return { browser, page };
+        throw error;
     }
 
 }
@@ -220,11 +235,9 @@ export const getDocument = async (browser, link, out = './out') => {
 
         const arr = new Uint8Array(file)
         const buffer = Buffer.from(arr);
-        const filename = join(__dirname, `${out}/${idPdf}.pdf`)
+        const filename = join(process.cwd(), `${out}/${idPdf}.pdf`)
         const write = promisify(writeFile)
         await write(filename, buffer);
-
-        logSuccess(`Got PDF ${idPdf} and save it to ${filename}`)
 
         page.close();
 

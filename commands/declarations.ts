@@ -23,8 +23,8 @@ export const declarations = (program: any) => {
                 options = await getCredentials(options);
                 options.type = options.type || 'tva';
                 const declarations = await actions.declarations(options.type, options.email, options.password, options.siren, options.save, options.out);
-                logSuccess(`Got declarations`);
-                logJSON(declarations);
+                logSuccess(`Got all ${options.type} declarations`);
+                // logJSON(declarations);
 
             } catch (error) {
                 logError('something was wrong during get declarations : ' + error.message);

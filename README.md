@@ -21,6 +21,8 @@ npm install -g @expertcomptabledev/impots.gouv.bot
 
 ### Use CLI commands
 
+All command are to prefix with `impots`, ex. `➜  ~ impots login ...`
+
 You can ask help everywhere using `--help` flag.
 
 * `login` : test login into your account (OK)

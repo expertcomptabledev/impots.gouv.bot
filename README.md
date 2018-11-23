@@ -38,26 +38,22 @@ You can ask help everywhere using `--help` flag.
 ### Use lib in node project
 
 1. Install impots.gouv.bot into your project using 
-
 ```
 npm install @expertcomptabledev/impots.gouv.bot --save
 ```
 
 2. Import impots.gouv.bot into your code
-
 ```
 import impots from '@expertcomptabledev/impots.gouv.bot';
 ```
 
 3. Use it !
-
 ```
 const companies = await impots.companies(email, password);
 console.log(companies);
 ```
-
-Must print in your console a table with your companie list. Below an example of list formatted into table using `prettyjson` :
-
+Must print in your console a table with your companie list.
+Below an example of list formatted into table using `prettyjson` :
 ```
   ┌───────┬───────────┬──────────────────────────────┐
   │   #   │   SIREN   │             Name             │

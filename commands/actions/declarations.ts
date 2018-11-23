@@ -9,6 +9,7 @@ const { join } = require('path');
 const { promisify } = require('util');
 const CLI = require('clui');
 const Spinner = CLI.Spinner;
+var flat = require('array.prototype.flat');
 
 const typesDeclaration = {
     'tva': 'DeclarationsTVA',
@@ -50,12 +51,15 @@ export const declarations = async (type: string, email: string, password: string
         await page.goto(await getLink(links, type), { timeout: TIMEOUT });
 
         // get all tva declarations
-        const declarationsByYear = await page.evaluate(() => {
+        const declarations = flat(await page.evaluate(() => {
             return Array.from(document.querySelectorAll('.tableau_pliable'))
                 .map((tableau: any) => {
 
                     // année dans child h1 > span
-                    const year = tableau.querySelector('h1 > span').textContent.trim();
+                    let year = tableau.querySelector('h1 > span').textContent.trim().match(/\d{4}/g);
+                    if(Array.isArray(year) && year.length === 1){
+                        year = year[0];
+                    }
 
                     // déclaration dans les tr SAUF la première qui contient les entêtes
                     const lines = tableau.querySelectorAll('tr');
@@ -95,22 +99,16 @@ export const declarations = async (type: string, email: string, password: string
                         })
                     }
 
-                    return {
-                        year: year,
-                        declarations: declarations
-                    }
+                    return declarations;
 
-                })
-        });
+                });
+        }));
 
         // construct list
         const linksToScrap = [];
-        declarationsByYear.forEach(declarationYear => {
-            const declarations = declarationYear.declarations;
-            declarations.forEach(d => {
-                linksToScrap.push(d.receiptLink);
-                linksToScrap.push(d.declarationLink);
-            })
+        declarations.forEach(declaration => {
+            linksToScrap.push(declaration.receiptLink);
+            linksToScrap.push(declaration.declarationLink);
         });
 
         if(save === true){
@@ -139,7 +137,7 @@ export const declarations = async (type: string, email: string, password: string
 
         if(close === true){
             await clean(browser, page);
-            return declarationsByYear;
+            return declarations;
         } else {
             return { browser, page };
         }
@@ -210,7 +208,7 @@ export const getDocument = async (browser, link, out = './out') => {
             
                 return res.length > 0;
 
-        }, { timeout: 60000, polling: 500}, idPdf)
+        }, { timeout: 60000, polling: 100}, idPdf)
 
         // print asked wait to recuperate
         const downloadLink = await page.evaluate((pdfId) => {

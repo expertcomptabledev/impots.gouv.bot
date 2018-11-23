@@ -30,6 +30,7 @@ exports.declarations = function (program) {
                 case 2:
                     declarations_1 = _a.sent();
                     helpers_1.logSuccess("Got all " + options.type + " declarations");
+                    helpers_1.logJSON(declarations_1);
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();

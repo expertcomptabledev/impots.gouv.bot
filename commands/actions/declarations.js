@@ -12,6 +12,7 @@ var join = require('path').join;
 var promisify = require('util').promisify;
 var CLI = require('clui');
 var Spinner = CLI.Spinner;
+var flat = require('array.prototype.flat');
 var typesDeclaration = {
     'tva': 'DeclarationsTVA'
 };
@@ -20,10 +21,10 @@ exports.declarations = function (type, email, password, siren, save, out, close)
     if (out === void 0) { out = undefined; }
     if (close === void 0) { close = true; }
     return tslib_1.__awaiter(_this, void 0, void 0, function () {
-        var status, clean, getLink, _a, browser, page, links, _b, _c, declarationsByYear, linksToScrap_1, count_1, concurrency, promiseProducer, pool, error_1;
+        var status, clean, getLink, _a, browser, page, links, _b, _c, declarations_1, _d, linksToScrap_1, count_1, concurrency, promiseProducer, pool, error_1;
         var _this = this;
-        return tslib_1.__generator(this, function (_d) {
-            switch (_d.label) {
+        return tslib_1.__generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
                     if (!typesDeclaration[type]) {
                         throw new Error('Declaration type not valid');
@@ -56,28 +57,32 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                     };
                     return [4 /*yield*/, get_fiscal_account_1.getFiscalAccount(email, password, siren, false)];
                 case 1:
-                    _a = _d.sent(), browser = _a.browser, page = _a.page;
-                    _d.label = 2;
+                    _a = _e.sent(), browser = _a.browser, page = _a.page;
+                    _e.label = 2;
                 case 2:
-                    _d.trys.push([2, 13, , 15]);
+                    _e.trys.push([2, 13, , 15]);
                     return [4 /*yield*/, get_fiscal_links_1.getFiscalLinks(page)];
                 case 3:
-                    links = _d.sent();
+                    links = _e.sent();
                     _c = (_b = page).goto;
                     return [4 /*yield*/, getLink(links, type)];
                 case 4: 
                 // log('got all fiscal links here :')
                 // logJSON(links);
-                return [4 /*yield*/, _c.apply(_b, [_d.sent(), { timeout: const_1.TIMEOUT }])];
+                return [4 /*yield*/, _c.apply(_b, [_e.sent(), { timeout: const_1.TIMEOUT }])];
                 case 5:
                     // log('got all fiscal links here :')
                     // logJSON(links);
-                    _d.sent();
+                    _e.sent();
+                    _d = flat;
                     return [4 /*yield*/, page.evaluate(function () {
                             return Array.from(document.querySelectorAll('.tableau_pliable'))
                                 .map(function (tableau) {
                                 // année dans child h1 > span
-                                var year = tableau.querySelector('h1 > span').textContent.trim();
+                                var year = tableau.querySelector('h1 > span').textContent.trim().match(/\d{4}/g);
+                                if (Array.isArray(year) && year.length === 1) {
+                                    year = year[0];
+                                }
                                 // déclaration dans les tr SAUF la première qui contient les entêtes
                                 var lines = tableau.querySelectorAll('tr');
                                 var getPeriod = function (periodText) {
@@ -114,28 +119,22 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                                         receiptLink: cells[0].querySelectorAll('a')[1] ? cells[0].querySelectorAll('a')[1].href : undefined
                                     });
                                 }
-                                return {
-                                    year: year,
-                                    declarations: declarations
-                                };
+                                return declarations;
                             });
                         })];
                 case 6:
-                    declarationsByYear = _d.sent();
+                    declarations_1 = _d.apply(void 0, [_e.sent()]);
                     linksToScrap_1 = [];
-                    declarationsByYear.forEach(function (declarationYear) {
-                        var declarations = declarationYear.declarations;
-                        declarations.forEach(function (d) {
-                            linksToScrap_1.push(d.receiptLink);
-                            linksToScrap_1.push(d.declarationLink);
-                        });
+                    declarations_1.forEach(function (declaration) {
+                        linksToScrap_1.push(declaration.receiptLink);
+                        linksToScrap_1.push(declaration.declarationLink);
                     });
                     if (!(save === true)) return [3 /*break*/, 9];
                     // logJSON(linksToScrap);
                     return [4 /*yield*/, page.setDefaultNavigationTimeout(30 * 1000 * 2)];
                 case 7:
                     // logJSON(linksToScrap);
-                    _d.sent();
+                    _e.sent();
                     count_1 = 0, concurrency = 3;
                     promiseProducer = function () {
                         if (count_1 < linksToScrap_1.length) {
@@ -149,23 +148,23 @@ exports.declarations = function (type, email, password, siren, save, out, close)
                     pool = new PromisePool(promiseProducer, concurrency);
                     return [4 /*yield*/, pool.start()];
                 case 8:
-                    _d.sent();
-                    _d.label = 9;
+                    _e.sent();
+                    _e.label = 9;
                 case 9:
                     status.stop();
                     if (!(close === true)) return [3 /*break*/, 11];
                     return [4 /*yield*/, clean(browser, page)];
                 case 10:
-                    _d.sent();
-                    return [2 /*return*/, declarationsByYear];
+                    _e.sent();
+                    return [2 /*return*/, declarations_1];
                 case 11: return [2 /*return*/, { browser: browser, page: page }];
                 case 12: return [3 /*break*/, 15];
                 case 13:
-                    error_1 = _d.sent();
+                    error_1 = _e.sent();
                     status.stop();
                     return [4 /*yield*/, clean(browser, page)];
                 case 14:
-                    _d.sent();
+                    _e.sent();
                     throw error_1;
                 case 15: return [2 /*return*/];
             }
@@ -232,7 +231,7 @@ exports.getDocument = function (browser, link, out) {
                                 .map(function (node) { return node.href; })
                                 .filter(function (a) { return a.indexOf(pdfId) > -1 && a.indexOf('getPdf') > -1; });
                             return res.length > 0;
-                        }, { timeout: 60000, polling: 500 }, idPdf)
+                        }, { timeout: 60000, polling: 100 }, idPdf)
                         // print asked wait to recuperate
                     ];
                 case 11:

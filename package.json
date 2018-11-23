@@ -1,6 +1,6 @@
 {
   "name": "@expertcomptabledev/impots.gouv.bot",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A bot to crawl impots.gouv.fr",
   "private": false,
   "main": "index.js",

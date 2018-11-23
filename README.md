@@ -1,6 +1,6 @@
 # impots.gouv.bot
 
-**Impots.gouv.bot** is a tool to crawl http://www.impots.gouv.fr pro and get all informations available with `cli` or with `node module`.
+**Impots.gouv.bot** is a tool to crawl http://www.impots.gouv.fr pro account, and get all informations available with `cli` or with `node module`.
 
 ## Get started
 
@@ -21,7 +21,7 @@ npm install -g @expertcomptabledev/impots.gouv.bot
 
 ### Use CLI commands
 
-All command are to prefix with `impots`, ex. `➜  ~ impots login ...`
+All commands must use `impots` prefix, ex. `➜  ~ impots login ...`
 
 You can ask help everywhere using `--help` flag.
 

@@ -59,14 +59,18 @@ export const declarations = async (type: string, email: string, password: string
                     let year = tableau.querySelector('h1 > span').textContent.trim().match(/\d{4}/g);
                     if(Array.isArray(year) && year.length === 1) {
                         year = year[0];
+                    } else {
+                        year = undefined;
                     }
 
                     // déclaration dans les tr SAUF la première qui contient les entêtes
                     const lines = tableau.querySelectorAll('tr');
 
                     const getPeriod = (periodText) => {
+                        console.log('getPeriod...');
+                        console.log(periodText);
                         if(periodText.indexOf("«") > -1){
-                            periodText.split("«")[0]
+                            return periodText.split("«")[0]
                         } else {
                             return periodText;
                         }
@@ -74,7 +78,7 @@ export const declarations = async (type: string, email: string, password: string
 
                     const getReceiptCode = (periodText) => {
                         if(periodText.indexOf("«") > -1){
-                            periodText.split("«")[1].slice(0, -1)
+                            return periodText.split("«")[1].slice(0, -1)
                         } else {
                             return periodText;
                         }
@@ -87,13 +91,13 @@ export const declarations = async (type: string, email: string, password: string
                         const cells = line.querySelectorAll('td');
                         declarations.push({
                             year: year,
-                            period: getPeriod(cells[0].textContent.trim()),
-                            receiptCode: getReceiptCode(cells[0].textContent.trim()),
-                            taxSystem: cells[1].textContent.trim(),
-                            type: cells[2].textContent.trim(),
-                            depositMode: cells[3].textContent.trim(),
-                            depositDate: cells[4].textContent.trim(),
-                            amount: cells[5].textContent.trim(),
+                            period: getPeriod(cells[0].textContent.trim()) || undefined,
+                            receiptCode: getReceiptCode(cells[0].textContent.trim()) || undefined,
+                            taxSystem: cells[1].textContent.trim() || undefined,
+                            type: cells[2].textContent.trim() || undefined,
+                            depositMode: cells[3].textContent.trim() || undefined,
+                            depositDate: cells[4].textContent.trim() || undefined,
+                            amount: cells[5].textContent.trim() || 0,
                             declarationLink: cells[0].querySelectorAll('a')[0].href,
                             receiptLink: cells[0].querySelectorAll('a')[1] ? cells[0].querySelectorAll('a')[1].href : undefined
                         })

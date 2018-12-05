@@ -97,7 +97,7 @@ exports.login = function (email, password, close) {
                 case 17:
                     logger_1.logError('Error during impot login');
                     logger_1.logError(error_1);
-                    return [3 /*break*/, 18];
+                    throw error_1;
                 case 18: return [2 /*return*/];
             }
         });

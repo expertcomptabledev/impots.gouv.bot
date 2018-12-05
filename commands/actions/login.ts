@@ -75,6 +75,7 @@ export const login = async (email: string, password: string, close = true): Prom
         
         logError('Error during impot login');
         logError(error);
+        throw error;
 
     }
 

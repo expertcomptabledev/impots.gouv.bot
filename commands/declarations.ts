@@ -5,6 +5,8 @@ import * as Models from './models';
 var Table = require('tty-table');
 var chalk = require('chalk');
 
+const perf = require('execution-time')();
+
 export const declarations = (program: any) => {
 
     program
@@ -18,13 +20,18 @@ export const declarations = (program: any) => {
         .option('-t, --type <value>' , 'Specify declaration type, default value is tva')
         .action(async (options) => {
 
+            perf.start();
+
             try {
 
                 options = await getCredentials(options);
                 options.type = options.type || 'tva';
-                const declarations = await actions.declarations(options.type, options.email, options.password, options.siren, options.save, options.out);
-                logSuccess(`Got declarations`);
-                logJSON(declarations);
+                const declarations: Array<Models.Declaration> = await actions.declarations(options.type, options.email, options.password, options.siren, options.save, options.out);
+                logSuccess(`Got ${declarations.length} declaration(s)`);
+                printDeclarations(declarations);
+
+                const results = perf.stop();
+                log(`Executed in ${results.time} ms`);
 
             } catch (error) {
                 logError('something was wrong during get declarations : ' + error.message);
@@ -34,45 +41,66 @@ export const declarations = (program: any) => {
 
 }
 
-// const printCompanies = (companies) => {
+const printDeclarations = (declarations: Array<Models.Declaration>) => {
 
-//     var header = [
-//         {
-//             value : "index",
-//             alias: "#",
-//             align: "center",
-//         },
-//         {
-//             value : "siren",
-//             alias: "SIREN",
-//             align: "center",
-//             formatter : function(value){
-//                 return value.toUpperCase();
-//             }
-//         },
-//         {
-//             value : "name",
-//             alias: "Name",
-//             align: "left",
-//             formatter : function(value){
-//                 return value.toUpperCase();
-//             }
-//         }
-//     ]
+    var header = [
+        {
+            value : "index",
+            alias: "#",
+            align: "center",
+        },
+        {
+            value : "year",
+            alias: "Year",
+            align: "center"
+        },
+        {
+            value : "period",
+            alias: "Period",
+            align: "center",
+        },
+        {
+            value : "amount",
+            alias: "Amount",
+            align: "center"
+        },
+        {
+            value : "depositDate",
+            alias: "Date",
+            align: "center"
+        },
+        // {
+        //     value : "depositMode",
+        //     alias: "Mode",
+        //     align: "center"
+        // },
+        {
+            value : "taxSystem",
+            alias: "System",
+            align: "center"
+        },
+        {
+            value : "declarationLink",
+            alias: "Link",
+            align: "center",
+            formatter: (val) => val ? true : false,
+            width: 8
+        }
+    ]
 
-//     const values = companies.map((c, i) => Object.assign({}, c, { index: i ? i + 1 : 1 }));
+    const values = declarations.map((c, i) => Object.assign({}, c, { index: i ? i + 1 : 1 }));
 
-//     var t1 = Table(header,values,{
-//         borderStyle : 1,
-//         borderColor : "white",
-//         paddingBottom : 0,
-//         headerAlign : "center",
-//         align : "center",
-//         color : "white",
-//         truncate: "..."
-//     });
+    var t1 = Table(header,values,{
+        borderStyle : 1,
+        borderColor : "white",
+        paddingBottom : 0,
+        headerAlign : "center",
+        align : "center",
+        color : "white",
+        truncate: "..."
+    });
 
-//     log(t1.render());
+    log(t1.render());
 
-// }
+}
 

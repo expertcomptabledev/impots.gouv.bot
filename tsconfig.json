@@ -9,6 +9,6 @@
       "strictNullChecks": false,
       "strict": true
     },
-    "include": ["src", "ES2015"],
+    "include": ["src", "src/cli.ts", "ES2015"],
     "exclude": ["node_modules", "**/__tests__/*"]
   }

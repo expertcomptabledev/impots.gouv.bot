@@ -6,8 +6,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install-cli": "tsc && npm install -g"
+    "install-cli": "tsc && npm install -g",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json"
   },
+  "files":["lib/**/*"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/expertcomptabledev/impots.gouv.bot.git"
@@ -31,7 +35,9 @@
   },
   "devDependencies": {
     "@types/node": "^10.12.10",
+    "prettier": "^1.16.4",
     "tslib": "^1.9.3",
+    "tslint": "^5.13.1",
     "typescript": "^3.1.6"
   },
   "dependencies": {

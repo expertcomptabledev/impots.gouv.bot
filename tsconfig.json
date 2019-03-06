@@ -1,19 +1,14 @@
 {
-  "compilerOptions": {
-      "lib": [
-          "es2015"
-      ],
-      "moduleResolution": "node",
-      "baseUrl": "./",
-      "importHelpers": true,
-      "allowSyntheticDefaultImports": true,
-      "paths": {
-      }
-  },
-  "exclude": [
-      "./node_modules"
-  ],
-  "include": [
-      "./**/*.ts"
-  ]
-}
+    "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "declaration": true,
+      "noImplicitAny": false,
+      "removeComments": true,
+      "outDir": "./lib",
+      "strictNullChecks": false,
+      "strict": true
+    },
+    "include": ["src", "ES2015"],
+    "exclude": ["node_modules", "**/__tests__/*"]
+  }

@@ -35,8 +35,8 @@ export const login = async (email: string, password: string, close = true): Prom
       // log(req.url());
     });
 
-    await page.type('#LMDP_Spi_tmp', email);
-    await page.type('#LMDP_Password_tmp', password);
+    await page.type('#ident', email);
+    await page.type('#mdp', password);
 
     const [response] = await Promise.all([
       page.waitForNavigation({

@@ -72,19 +72,28 @@ const getAllDeclareInformations = async (
   ) => {
 
     const res = [];
-    let context;
+
     try {
-        context = await selectCompany(email, password, siren);
+
+        let context = await selectCompany(email, password, siren);
+        
         for (let i = 0; i < TYPES.length; i++) {
             const type = TYPES[i];
-            const close = i === (TYPES.length - 1) ? true : false;
-            const r = await getDeclareInformations(type, email, password, siren, close, Object.assign({}, context, { companySet: true }));
+            const r = await getDeclareInformations(
+                type, 
+                email, 
+                password, 
+                siren, 
+                false, 
+                Object.assign({}, context, { companySet: true }));
             res.push(r)
         }
+
+        clean(context.browser, context.page);
+
     } catch (e) {
 
     } finally {
-        clean(context.browser, context.page)
         return flat(res);
     }
 

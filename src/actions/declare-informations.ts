@@ -102,7 +102,7 @@ export const getDeclareInformations = async (
             pageDeclarations.waitForNavigation({ timeout: TIMEOUT }),
             pageDeclarations.goto('https://cfspro.impots.gouv.fr/efitvamapi/afficherContexte2.html', { timeout: TIMEOUT })
         ])
-        await pageDeclarations.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
+        await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
         
         const declarations: Array<DeclareInformation> = await pageDeclarations.evaluate(() => {
 

@@ -24,7 +24,7 @@ const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
 const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
 
-    if(!browser) return;
+    if(!browser) resolve();
 
     let done = false;
     setTimeout(() => {
@@ -34,8 +34,7 @@ const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise
     }, timeout);
 
     browser.on('targetdestroyed',async (target) => {
-        const p = await target.page();
-        resolve(p);
+        resolve();
     });
 
 })
@@ -52,7 +51,7 @@ const clean = async (browser, page) => {
         if(browser) {
             await browser.close();
         }
-        
+
     } catch (error) {
         
     }

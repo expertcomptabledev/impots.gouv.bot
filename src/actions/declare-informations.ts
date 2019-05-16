@@ -113,12 +113,14 @@ export const getDeclareInformations = async (
                 const line = lines[index];
                 // get td
                 const cells = line.querySelectorAll('td');
-                declarations.push({
-                    period: cells[0].textContent.trim(),
-                    limitDate: cells[1].textContent.trim(),
-                    type: cells[2].textContent.trim(),
-                    depositDate: cells[3].textContent.trim(),
-                });
+                if(cells.length === 4) {
+                    declarations.push({
+                        period: cells[0].textContent.trim(),
+                        limitDate: cells[1].textContent.trim(),
+                        type: cells[2].textContent.trim(),
+                        depositDate: cells[3].textContent.trim(),
+                    });
+                }
             }
             return declarations;
 

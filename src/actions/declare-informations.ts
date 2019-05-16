@@ -75,9 +75,7 @@ export const getDeclareInformations = async (
         // 1. navigate to this page
         await page.goto(url, { timeout: TIMEOUT });
 
-
-
-        const newPageHandler = (timeout = 1500): Promise<Array<DeclareInformation>> => new Promise(async (resolve, reject) => {
+        const newPageHandler = (timeout = 1500): Promise<any> => new Promise(async (resolve, reject) => {
 
             let done = false;
             setTimeout(() => {
@@ -87,37 +85,8 @@ export const getDeclareInformations = async (
             }, timeout);
 
             browser.on('targetcreated',async (target) => {
-
-                try {
-
-                    const pageDeclarations = await target.page();
-                    await page.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
-                  
-                    const declarations: Array<DeclareInformation> = await pageDeclarations.evaluate(() => {
-                        const tableau = document.querySelector('#periodeCalcule > table');
-                        const lines = tableau.querySelectorAll('tr');
-                        const declarations = [];
-                        for (let index = 1; index < lines.length; index++) {
-                            const line = lines[index];
-                            // get td
-                            const cells = line.querySelectorAll('td');
-                            declarations.push({
-                                period: cells[0].textContent.trim(),
-                                limitDate: cells[1].textContent.trim(),
-                                type: cells[2].textContent.trim(),
-                                depositDate: cells[3].textContent.trim(),
-                            });
-                        }
-                        return declarations;
-            
-                    });
-
-                    resolve(declarations);
-
-                } catch (error) {
-                    reject(error);
-                }
-    
+                const p = await target.page();
+                resolve(p);
             });
 
         })
@@ -126,7 +95,30 @@ export const getDeclareInformations = async (
         await page.waitForSelector(selector, { timeout: TIMEOUT });
         await page.$eval('#ins_contenu > form', form => form.submit());
 
-        const declarations = await newPageHandler();
+        const pageDeclarations = await newPageHandler();
+
+        await pageDeclarations.goto('https://cfspro.impots.gouv.fr/efitvamapi/afficherContexte2.html', { timeout: TIMEOUT });
+        await page.waitForNavigation({ timeout: TIMEOUT });
+        await pageDeclarations.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
+        
+        const declarations: Array<DeclareInformation> = await pageDeclarations.evaluate(() => {
+            const tableau = document.querySelector('#periodeCalcule > table');
+            const lines = tableau.querySelectorAll('tr');
+            const declarations = [];
+            for (let index = 1; index < lines.length; index++) {
+                const line = lines[index];
+                // get td
+                const cells = line.querySelectorAll('td');
+                declarations.push({
+                    period: cells[0].textContent.trim(),
+                    limitDate: cells[1].textContent.trim(),
+                    type: cells[2].textContent.trim(),
+                    depositDate: cells[3].textContent.trim(),
+                });
+            }
+            return declarations;
+
+        });
 
         status.stop();
   

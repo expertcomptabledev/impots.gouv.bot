@@ -36,6 +36,7 @@ You can ask help everywhere using `--help` flag.
 * `login` : test login into your account (OK)
 * `companies` : get list of your companies (OK)
 * `declarations` : get declarations by type (in progress)
+* `declare` : get declare view by type (OK)
 
 ### Use lib in node project
 

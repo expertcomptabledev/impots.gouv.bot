@@ -46,13 +46,12 @@ npm install @expertcomptabledev/impots.gouv.bot --save
 
 2. Import impots.gouv.bot into your code
 ```
-import impots from '@expertcomptabledev/impots.gouv.bot';
+import * as impots from '@expertcomptabledev/impots.gouv.bot';
 ```
 
 3. Use it !
 ```
-const companies = await impots.companies(email, password);
-console.log(companies);
+const companies = await impots.getCompanies(email, password);
 ```
 Must print in your console a table with your companie list.
 Below an example of list formatted into table using `tty-table` :

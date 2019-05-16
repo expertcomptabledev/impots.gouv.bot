@@ -53,6 +53,7 @@ export const declarations = async (
   const { browser, page } = await getFiscalAccount(email, password, siren, false);
 
   try {
+    
     const links = await getFiscalLinks(page);
 
     // log('got all fiscal links here :')

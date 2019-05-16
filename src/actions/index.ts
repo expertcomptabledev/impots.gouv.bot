@@ -5,3 +5,4 @@ export * from './get-fiscal-account';
 export * from './get-fiscal-links';
 export * from './login';
 export * from './declare-informations';
+export * from './select-company';

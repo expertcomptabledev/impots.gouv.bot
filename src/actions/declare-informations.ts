@@ -1,5 +1,5 @@
-import { getFiscalAccount } from './get-fiscal-account';
-import { getFiscalLinks } from './get-fiscal-links';
+import { selectCompany } from './select-company';
+
 import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../helpers/logger';
 import { TIMEOUT } from './const';
 declare var document, fetch;
@@ -69,12 +69,10 @@ export const getDeclareInformations = async (
   
     try {
   
-        const { browser, page } = await getFiscalAccount(email, password, siren, false);
+        const { browser, page } = await selectCompany(email, password, siren);
 
         // 1. navigate to this page
-        await page.goto(url, {
-            timeout: TIMEOUT,
-        });
+        await page.goto(url, { timeout: TIMEOUT });
 
         const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
         await page.waitForSelector(selector, { timeout: TIMEOUT });

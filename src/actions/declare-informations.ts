@@ -34,8 +34,11 @@ const getAllDeclareInformations = async (
   ) => {
 
     const res = [];
-    for await (let r of TYPES.map(t => getDeclareInformations(t, email, password, siren, close))) {
-        res.push(r);
+
+    for (let i = 0; i < TYPES.length; i++) {
+        const t = TYPES[i];
+        const r = await getDeclareInformations(t, email, password, siren, close);
+        res.push(r)
     }
     return flat(res);
 

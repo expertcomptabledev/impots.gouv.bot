@@ -26,7 +26,7 @@ const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?i
 
 const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
-export const getAllDeclareInformations = async (
+const getAllDeclareInformations = async (
     email: string,
     password: string,
     siren: string,
@@ -45,10 +45,6 @@ export const getDeclareInformations = async (
     siren: string,
     close = true
   ) => {
-
-    if (!type) {
-      throw new Error('Declaration type not valid');
-    }
 
     let url, path;
     switch (type) {

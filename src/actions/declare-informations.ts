@@ -38,7 +38,8 @@ const getAllDeclareInformations = async (
         let context = await selectCompany(email, password, siren);
         for (let i = 0; i < TYPES.length; i++) {
             const type = TYPES[i];
-            const r = await getDeclareInformations(type, email, password, siren, context);
+            const close = i === TYPES.length - 1;
+            const r = await getDeclareInformations(type, email, password, siren, close, Object.assign({}, context, { companySet: true }));
             res.push(r)
         }
     } catch (e) {
@@ -54,7 +55,8 @@ export const getDeclareInformations = async (
     email: string,
     password: string,
     siren: string,
-    context?: { browser: any, page: any }
+    close = true,
+    context?: { browser: any, page: any, companySet: boolean }
   ) => {
 
     let url, path;
@@ -99,12 +101,11 @@ export const getDeclareInformations = async (
         const clean = async (browser, page) => {
             await page.close();
             await browser.close();
-            status.stop();
         };
 
         try {
 
-            if(context) {
+            if(context && context.browser && context.page && context.companySet === true) {
                 browser = context.browser;
                 page = context.page;
             } else {
@@ -172,7 +173,12 @@ export const getDeclareInformations = async (
 
         } finally {
 
-            await clean(browser, page);
+            if(close) {
+                await clean(browser, page);
+            }
+
+            status.stop();
+            
             return declarations;
 
         }

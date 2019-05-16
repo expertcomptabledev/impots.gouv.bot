@@ -33,8 +33,12 @@ const getAllDeclareInformations = async (
     close = true
   ) => {
 
-    const rs = await Promise.all(TYPES.map(t => getDeclareInformations(t, email, password, siren, close)));
-    return flat(rs);
+    const res = [];
+    for await (let t of TYPES) {
+        const r = await getDeclareInformations(t, email, password, siren, close);
+        res.push(r);
+    }
+    return flat(res);
 
 }
 

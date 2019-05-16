@@ -38,7 +38,7 @@ const getAllDeclareInformations = async (
         let context = await selectCompany(email, password, siren);
         for (let i = 0; i < TYPES.length; i++) {
             const type = TYPES[i];
-            const close = i === TYPES.length - 1;
+            const close = i === (TYPES.length - 1) ? true : false;
             const r = await getDeclareInformations(type, email, password, siren, close, Object.assign({}, context, { companySet: true }));
             res.push(r)
         }
@@ -198,7 +198,7 @@ export const getDeclareInformations = async (
             if(close === true) {
                 await clean(browser, page);
             }
-            
+
             return declarations;
 
         }

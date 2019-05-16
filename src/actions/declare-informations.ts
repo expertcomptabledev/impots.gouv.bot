@@ -24,6 +24,20 @@ const DECLARE_RCM_URL = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.
 
 const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?idth=declarer.e-declaration.resultat&action=declarer-resultat`;
 
+const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
+
+export const getAllDeclareInformations = async (
+    email: string,
+    password: string,
+    siren: string,
+    close = true
+  ) => {
+
+    const rs = await Promise.all(TYPES.map(t => getDeclareInformations(t, email, password, siren, close)));
+    return flat(rs);
+
+}
+
 export const getDeclareInformations = async (
     type: string,
     email: string,
@@ -62,7 +76,7 @@ export const getDeclareInformations = async (
             url = DECLARE_RES;
             path = `efipromapi`;
         default:
-            throw new Error(`Type not valid, must be in ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES']`);
+            return await getAllDeclareInformations(email, password, siren, close);
     }
   
     const status = new Spinner(`Getting ${type} declare informations, please wait...`);

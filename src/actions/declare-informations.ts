@@ -26,6 +26,31 @@ const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?i
 
 const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
+const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
+    if(!browser) return;
+    let done = false;
+    setTimeout(() => {
+        if(done === false) {
+            reject(`Timeout fired`);
+        }
+    }, timeout);
+
+    browser.on('targetdestroyed',async (target) => {
+        const p = await target.page();
+        resolve(p);
+    });
+})
+
+const clean = async (browser, page) => {
+    if(page) {
+        await page.close();
+        await pageClosedHandler(browser);
+    }
+    if(browser) {
+        await browser.close();
+    }
+};
+
 const getAllDeclareInformations = async (
     email: string,
     password: string,
@@ -33,9 +58,9 @@ const getAllDeclareInformations = async (
   ) => {
 
     const res = [];
-
+    let context;
     try {
-        let context = await selectCompany(email, password, siren);
+        context = await selectCompany(email, password, siren);
         for (let i = 0; i < TYPES.length; i++) {
             const type = TYPES[i];
             const close = i === (TYPES.length - 1) ? true : false;
@@ -45,6 +70,7 @@ const getAllDeclareInformations = async (
     } catch (e) {
 
     } finally {
+        clean(context.browser, context.page)
         return flat(res);
     }
 
@@ -98,25 +124,7 @@ export const getDeclareInformations = async (
     
         let browser, page, declarations: Array<DeclareInformation> = [], pageDeclarations;
 
-        const pageClosedHandler = (timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
-            let done = false;
-            setTimeout(() => {
-                if(done === false) {
-                    reject(`Timeout fired`);
-                }
-            }, timeout);
-
-            browser.on('targetdestroyed',async (target) => {
-                const p = await target.page();
-                resolve(p);
-            });
-        })
-
-        const clean = async (browser, page) => {
-            await page.close();
-            await pageClosedHandler();
-            await browser.close();
-        };
+        
 
         try {
 
@@ -186,7 +194,7 @@ export const getDeclareInformations = async (
 
             if(pageDeclarations) {
                 await pageDeclarations.close();
-                await pageClosedHandler();
+                await pageClosedHandler(browser);
             }
 
         } catch (error) {

@@ -13,6 +13,10 @@ export const selectCompany = async (email: string, password: string, siren: stri
     timeout: TIMEOUT,
   });
 
+  const formSelector = `#ins_contenu > table > tbody > tr:nth-child(2) > td > form`;
+
+  await page.waitForSelector(formSelector, { timeout: TIMEOUT });
+
   // fill form
   await Promise.all([
       page.type('#siren0', siren.substring(0,1)),
@@ -31,10 +35,10 @@ export const selectCompany = async (email: string, password: string, siren: stri
     page.waitForNavigation({
       timeout: TIMEOUT,
     }),
-    page.$eval('#ins_contenu > table > tbody > tr:nth-child(2) > td > form', form => form.submit()),
+    page.$eval(formSelector, form => form.submit()),
   ]);
 
   // ok return 
   return { browser, page };
-  
+
 };

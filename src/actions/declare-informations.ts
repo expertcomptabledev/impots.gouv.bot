@@ -98,10 +98,10 @@ export const getDeclareInformations = async (
         const pageDeclarations = await newPageHandler();
 
         await pageDeclarations.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
-        await pageDeclarations.elaluate(() => page.querySelector('#periodeCalcule > table > tbody > tr:last-child > td > a', el => el.click()));
-        // await pageDeclarations.goto('https://cfspro.impots.gouv.fr/efitvamapi/afficherContexte2.html', { timeout: TIMEOUT });
-        await pageDeclarations.waitForNavigation({ timeout: TIMEOUT });
-        await pageDeclarations.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
+        // await pageDeclarations.elaluate(() => page.querySelector('#periodeCalcule > table > tbody > tr:last-child > td > a', el => el.click()));
+        // // await pageDeclarations.goto('https://cfspro.impots.gouv.fr/efitvamapi/afficherContexte2.html', { timeout: TIMEOUT });
+        // await pageDeclarations.waitForNavigation({ timeout: TIMEOUT });
+        // await pageDeclarations.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
         
         const declarations: Array<DeclareInformation> = await pageDeclarations.evaluate(() => {
             const tableau = document.querySelector('#periodeCalcule > table');

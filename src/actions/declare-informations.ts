@@ -169,6 +169,8 @@ export const getDeclareInformations = async (
 
             });
 
+            pageDeclarations.close();
+
         } catch (error) {
 
         } finally {

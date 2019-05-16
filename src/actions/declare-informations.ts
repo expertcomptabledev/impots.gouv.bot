@@ -3,11 +3,7 @@ import { selectCompany } from './select-company';
 import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../helpers/logger';
 import { TIMEOUT } from './const';
 import { DeclareInformation } from '../models';
-declare var document, fetch;
-var PromisePool = require('es6-promise-pool');
-const { mkdirSync, existsSync, writeFile } = require('fs');
-const { join } = require('path');
-const { promisify } = require('util');
+declare var document;
 const CLI = require('clui');
 const Spinner = CLI.Spinner;
 var flat = require('array.prototype.flat');
@@ -27,7 +23,9 @@ const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?i
 const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
 const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
+
     if(!browser) return;
+
     let done = false;
     setTimeout(() => {
         if(done === false) {
@@ -39,16 +37,26 @@ const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise
         const p = await target.page();
         resolve(p);
     });
+
 })
 
 const clean = async (browser, page) => {
-    if(page) {
-        await page.close();
-        await pageClosedHandler(browser);
+
+    try {
+    
+        if(page) {
+            await page.close();
+            await pageClosedHandler(browser);
+        }
+
+        if(browser) {
+            await browser.close();
+        }
+        
+    } catch (error) {
+        
     }
-    if(browser) {
-        await browser.close();
-    }
+    
 };
 
 const getAllDeclareInformations = async (

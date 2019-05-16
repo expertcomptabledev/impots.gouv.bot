@@ -112,10 +112,9 @@ export const getDeclareInformations = async (
             });
         })
 
-        const clean = async (browser, page, pageDeclarations) => {
+        const clean = async (browser, page) => {
             await page.close();
             await pageClosedHandler();
-            
             await browser.close();
         };
 
@@ -148,8 +147,6 @@ export const getDeclareInformations = async (
 
             })
 
-            
-            
             const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
             await page.waitForSelector(selector, { timeout: TIMEOUT });
             await page.$eval('#ins_contenu > form', form => form.submit());
@@ -196,11 +193,11 @@ export const getDeclareInformations = async (
 
         } finally {
 
-            if(close) {
-                await clean(browser, page, pageDeclarations);
-            }
-
             status.stop();
+
+            if(close === true) {
+                await clean(browser, page);
+            }
             
             return declarations;
 

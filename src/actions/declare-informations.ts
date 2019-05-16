@@ -34,8 +34,7 @@ const getAllDeclareInformations = async (
   ) => {
 
     const res = [];
-    for await (let t of TYPES) {
-        const r = await getDeclareInformations(t, email, password, siren, close);
+    for await (let r of TYPES.map(t => getDeclareInformations(t, email, password, siren, close))) {
         res.push(r);
     }
     return flat(res);
@@ -87,7 +86,7 @@ export const getDeclareInformations = async (
       await page.close();
       await browser.close();
     };
-  
+
     try {
   
         const { browser, page } = await selectCompany(email, password, siren);
@@ -148,22 +147,12 @@ export const getDeclareInformations = async (
         });
 
         status.stop();
-  
-        if (close === true) {
 
-            await clean(browser, page);
-            return declarations || [];
-
-        } else {
-            return { browser, page };
-        }
+        await clean(browser, page);
+        return declarations;
 
     } catch (error) {
-
-        status.stop();
-        // await clean(browser, page);
-        throw error;
-
+        return [];
     }
 
   };

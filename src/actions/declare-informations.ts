@@ -36,25 +36,31 @@ export const getDeclareInformations = async (
       throw new Error('Declaration type not valid');
     }
 
-    let url;
+    let url, path;
     switch (type) {
         case 'TVA':
-            url = DECLARE_TVA_URL;            
+            url = DECLARE_TVA_URL;  
+            path = 'efitvamapi';          
             break;
         case 'IS': 
             url = DECLARE_IS_URL;
+            path = `efipromapi`;
             break;
         case 'TS':
             url = DECLARE_TS_URL;
+            path = `efipromapi`;
             break;
         case 'CVAE':
             url = DECLARE_CVAE_URL;
+            path = `efipromapi`;
             break;
         case 'RCM':
             url = DECLARE_RCM_URL;
+            path = `efipromapi`;
             break;
         case 'RES':
             url = DECLARE_RES;
+            path = `efipromapi`;
         default:
             throw new Error(`Type not valid, must be in ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES']`);
     }
@@ -100,7 +106,7 @@ export const getDeclareInformations = async (
         await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
         await Promise.all([
             pageDeclarations.waitForNavigation({ timeout: TIMEOUT }),
-            pageDeclarations.goto('https://cfspro.impots.gouv.fr/efitvamapi/afficherContexte2.html', { timeout: TIMEOUT })
+            pageDeclarations.goto(`https://cfspro.impots.gouv.fr/${path}/afficherContexte2.html`, { timeout: TIMEOUT })
         ])
         await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
         

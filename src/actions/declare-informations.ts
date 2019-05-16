@@ -98,9 +98,25 @@ export const getDeclareInformations = async (
     
         let browser, page, declarations: Array<DeclareInformation> = [], pageDeclarations;
 
+        const pageClosedHandler = (timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
+            let done = false;
+            setTimeout(() => {
+                if(done === false) {
+                    reject(`Timeout fired`);
+                }
+            }, timeout);
+
+            browser.on('targetdestroyed',async (target) => {
+                const p = await target.page();
+                resolve(p);
+            });
+        })
+
         const clean = async (browser, page, pageDeclarations) => {
             await page.close();
+            await pageClosedHandler();
             await pageDeclarations.close();
+            await pageClosedHandler();
             await browser.close();
         };
 
@@ -132,6 +148,8 @@ export const getDeclareInformations = async (
                 });
 
             })
+
+            
             
             const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
             await page.waitForSelector(selector, { timeout: TIMEOUT });

@@ -79,21 +79,27 @@ export const getDeclareInformations = async (
     }
 
     if(!url && !path) {
+
         return await getAllDeclareInformations(email, password, siren);
+
     } else {
   
         const status = new Spinner(`Getting ${type} declare informations, please wait...`);
 
         status.start();
     
+        let browser, page, declarations: Array<DeclareInformation> = [];
         const clean = async (browser, page) => {
-        await page.close();
-        await browser.close();
+            await page.close();
+            await browser.close();
+            status.stop();
         };
 
-        let { browser, page } = await selectCompany(email, password, siren);
-
         try {
+
+            let res = await selectCompany(email, password, siren);
+            browser = res.browser;
+            page = res.page;
 
             await page.goto(url, { timeout: TIMEOUT });
 
@@ -124,9 +130,10 @@ export const getDeclareInformations = async (
                 pageDeclarations.waitForNavigation({ timeout: TIMEOUT }),
                 pageDeclarations.goto(`https://cfspro.impots.gouv.fr/${path}/afficherContexte2.html`, { timeout: TIMEOUT })
             ])
+            
             await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
             
-            const declarations: Array<DeclareInformation> = await pageDeclarations.evaluate(() => {
+            declarations = await pageDeclarations.evaluate(() => {
 
                 const tableau = document.querySelector('#periodeCalcule > table');
                 const lines = tableau.querySelectorAll('tr');
@@ -149,15 +156,15 @@ export const getDeclareInformations = async (
 
             });
 
-            status.stop();
+        } catch (error) {
+
+        } finally {
 
             await clean(browser, page);
             return declarations;
 
-        } catch (error) {
-            await clean(browser, page);
-            return [];
         }
+
     }
 
   };

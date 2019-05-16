@@ -42,10 +42,17 @@ const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise
 const clean = async (browser, page) => {
 
     try {
-    
-        if(page) {
-            await page.close();
-            await pageClosedHandler(browser);
+
+        const pages = await browser.pages()
+
+        if(pages && pages.length > 0) {
+            for (let i = 0; i < pages.length; i++) {
+                const p = pages[i];
+                if(p) {
+                    await p.close();
+                    await pageClosedHandler(browser);
+                }
+            }
         }
 
         if(browser) {

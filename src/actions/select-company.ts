@@ -3,11 +3,19 @@ import { TIMEOUT } from './const';
 declare var document;
 import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../helpers/logger';
 
-export const selectCompany = async (email: string, password: string, siren: string) => {
+export const selectCompany = async (email: string, password: string, siren: string, context?: { browser: any, page: any }) => {
 
   const url = `https://cfspro.impots.gouv.fr/mire/afficherChoisirDossier.do?idth=dossier12&action=choixDossier`;
 
-  const { browser, page } = await login(email, password, false);
+  let browser, page;
+  if(context){
+    browser = context.browser;
+    page = context.page;
+  } else {
+    const res = await login(email, password, false);
+    browser = res.browser;
+    page = res.page;
+  }
 
   await page.goto(url, {
     timeout: TIMEOUT,

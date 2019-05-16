@@ -34,13 +34,18 @@ const getAllDeclareInformations = async (
 
     const res = [];
 
-    for (let i = 0; i < TYPES.length; i++) {
-        const type = TYPES[i];
-        const r = await getDeclareInformations(type, email, password, siren);
-        res.push(r)
-    }
+    try {
+        let context = await selectCompany(email, password, siren);
+        for (let i = 0; i < TYPES.length; i++) {
+            const type = TYPES[i];
+            const r = await getDeclareInformations(type, email, password, siren, context);
+            res.push(r)
+        }
+    } catch (e) {
 
-    return flat(res);
+    } finally {
+        return flat(res);
+    }
 
 }
 
@@ -48,7 +53,8 @@ export const getDeclareInformations = async (
     type: string,
     email: string,
     password: string,
-    siren: string
+    siren: string,
+    context?: { browser: any, page: any }
   ) => {
 
     let url, path;
@@ -89,6 +95,7 @@ export const getDeclareInformations = async (
         status.start();
     
         let browser, page, declarations: Array<DeclareInformation> = [];
+
         const clean = async (browser, page) => {
             await page.close();
             await browser.close();
@@ -97,9 +104,14 @@ export const getDeclareInformations = async (
 
         try {
 
-            let res = await selectCompany(email, password, siren);
-            browser = res.browser;
-            page = res.page;
+            if(context) {
+                browser = context.browser;
+                page = context.page;
+            } else {
+                let res = await selectCompany(email, password, siren);
+                browser = res.browser;
+                page = res.page;
+            }
 
             await page.goto(url, { timeout: TIMEOUT });
 
@@ -130,7 +142,7 @@ export const getDeclareInformations = async (
                 pageDeclarations.waitForNavigation({ timeout: TIMEOUT }),
                 pageDeclarations.goto(`https://cfspro.impots.gouv.fr/${path}/afficherContexte2.html`, { timeout: TIMEOUT })
             ])
-            
+
             await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
             
             declarations = await pageDeclarations.evaluate(() => {

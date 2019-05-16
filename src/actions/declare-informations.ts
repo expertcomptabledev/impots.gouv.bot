@@ -115,8 +115,7 @@ export const getDeclareInformations = async (
         const clean = async (browser, page, pageDeclarations) => {
             await page.close();
             await pageClosedHandler();
-            await pageDeclarations.close();
-            await pageClosedHandler();
+            
             await browser.close();
         };
 
@@ -188,7 +187,8 @@ export const getDeclareInformations = async (
 
             });
 
-            
+            await pageDeclarations.close();
+            await pageClosedHandler();
 
         } catch (error) {
 

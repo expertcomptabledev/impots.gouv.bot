@@ -8,5 +8,6 @@ program.version(pkg.version);
 commands.login(program);
 commands.companies(program);
 commands.declarations(program);
+commands.declareInformations(program);
 
 program.parse(process.argv);

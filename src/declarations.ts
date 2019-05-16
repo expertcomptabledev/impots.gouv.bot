@@ -13,7 +13,7 @@ export const declarations = (program: any) => {
     .description('Get your companies')
     .option('-e, --email <your-email>', 'Email used to create your impots.gouv.fr account')
     .option('-p, --password <your-password>', 'Password')
-    .option('-s, --siren <value>', "Companie's SIREN")
+    .option('-s, --siren <value>', "Company's SIREN")
     .option('-S, --save', 'Specify saving pdf')
     .option('-o, --out <value>', 'Specify out directory to save pdf')
     .option('-t, --type <value>', 'Specify declaration type, default value is tva')

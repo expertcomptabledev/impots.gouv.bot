@@ -13,6 +13,10 @@ var flat = require('array.prototype.flat');
 
 const typesDeclaration = {
   tva: 'DeclarationsTVA',
+  is: 'DeclarationsRP',
+  rcm: 'DeclarationsRCM',
+  ts: 'DeclarationsTS',
+  cvae: 'DeclarationsCVAE',
 };
 
 export const declarations = async (

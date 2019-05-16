@@ -1,12 +1,12 @@
 {
   "name": "@expertcomptabledev/impots.gouv.bot",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "A bot to crawl impots.gouv.fr",
   "private": false,
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install-cli": "npm run build && npm install -g",
+    "install-cli": "npm run build && yarn global add @expertcomptabledev/impots.gouv.bot ./",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json"

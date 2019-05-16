@@ -20,8 +20,7 @@ export const declareInformations = (program: any) => {
             options.type,
             options.email,
             options.password,
-            options.siren,
-            true
+            options.siren
         );
         printDeclarationInformations(declareInformations);
       } catch (error) {

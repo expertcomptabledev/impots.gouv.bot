@@ -187,8 +187,10 @@ export const getDeclareInformations = async (
 
             });
 
-            await pageDeclarations.close();
-            await pageClosedHandler();
+            if(pageDeclarations) {
+                await pageDeclarations.close();
+                await pageClosedHandler();
+            }
 
         } catch (error) {
 

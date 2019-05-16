@@ -96,10 +96,11 @@ export const getDeclareInformations = async (
 
         status.start();
     
-        let browser, page, declarations: Array<DeclareInformation> = [];
+        let browser, page, declarations: Array<DeclareInformation> = [], pageDeclarations;
 
-        const clean = async (browser, page) => {
+        const clean = async (browser, page, pageDeclarations) => {
             await page.close();
+            await pageDeclarations.close();
             await browser.close();
         };
 
@@ -136,7 +137,7 @@ export const getDeclareInformations = async (
             await page.waitForSelector(selector, { timeout: TIMEOUT });
             await page.$eval('#ins_contenu > form', form => form.submit());
 
-            const pageDeclarations = await newPageHandler();
+            pageDeclarations = await newPageHandler();
 
             await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
             await Promise.all([
@@ -169,14 +170,14 @@ export const getDeclareInformations = async (
 
             });
 
-            await pageDeclarations.close();
+            
 
         } catch (error) {
 
         } finally {
 
             if(close) {
-                await clean(browser, page);
+                await clean(browser, page, pageDeclarations);
             }
 
             status.stop();

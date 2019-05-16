@@ -2,6 +2,7 @@ import { selectCompany } from './select-company';
 
 import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../helpers/logger';
 import { TIMEOUT } from './const';
+import { DeclareInformation } from '../models';
 declare var document, fetch;
 var PromisePool = require('es6-promise-pool');
 const { mkdirSync, existsSync, writeFile } = require('fs');
@@ -74,40 +75,66 @@ export const getDeclareInformations = async (
         // 1. navigate to this page
         await page.goto(url, { timeout: TIMEOUT });
 
+
+
+        const newPageHandler = (timeout = 1500): Promise<Array<DeclareInformation>> => new Promise(async (resolve, reject) => {
+
+            let done = false;
+            setTimeout(() => {
+                if(done === false) {
+                    reject(`Timeout fired`);
+                }
+            }, timeout);
+
+            browser.on('targetcreated',async (target) => {
+
+                try {
+
+                    const pageDeclarations = await target.page();
+                    await page.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
+                  
+                    const declarations: Array<DeclareInformation> = await pageDeclarations.evaluate(() => {
+                        const tableau = document.querySelector('#periodeCalcule > table');
+                        const lines = tableau.querySelectorAll('tr');
+                        const declarations = [];
+                        for (let index = 1; index < lines.length; index++) {
+                            const line = lines[index];
+                            // get td
+                            const cells = line.querySelectorAll('td');
+                            declarations.push({
+                                period: cells[0].textContent.trim(),
+                                limitDate: cells[1].textContent.trim(),
+                                type: cells[2].textContent.trim(),
+                                depositDate: cells[3].textContent.trim(),
+                            });
+                        }
+                        return declarations;
+            
+                    });
+
+                    resolve(declarations);
+
+                } catch (error) {
+                    reject(error);
+                }
+    
+            });
+
+        })
+        
         const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
         await page.waitForSelector(selector, { timeout: TIMEOUT });
         await page.$eval('#ins_contenu > form', form => form.submit());
-        await page.waitForNavigation({ timeout: TIMEOUT });
-        await page.waitForSelector('#espaceDialogue', { timeout: TIMEOUT });
-    
-        // get all tva declarations
-        const declarations = await page.evaluate(() => {
 
-            const tableau = document.querySelector('#periodeCalcule > table');
-            const lines = tableau.querySelectorAll('tr');
+        const declarations = await newPageHandler();
 
-            const declarations = [];
-            for (let index = 1; index < lines.length; index++) {
-                const line = lines[index];
-                // get td
-                const cells = line.querySelectorAll('td');
-                declarations.push({
-                    period: cells[0].textContent.trim(),
-                    limitDate: cells[1].textContent.trim(),
-                    type: cells[2].textContent.trim(),
-                    depositDate: cells[3].textContent.trim(),
-                });
-            }
-
-            return;
-
-        });
-  
         status.stop();
   
         if (close === true) {
+
             await clean(browser, page);
-            return declarations;
+            return declarations || [];
+
         } else {
             return { browser, page };
         }

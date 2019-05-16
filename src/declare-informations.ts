@@ -16,13 +16,13 @@ export const declareInformations = (program: any) => {
     .action(async options => {
       try {
         options = await getCredentials(options);
-        const declareInformations: Array<Models.DeclareInformation> = await actions.getDeclareInformations(
+        const declareInformations = await actions.getDeclareInformations(
             options.type,
             options.email,
             options.password,
-            options.siren
+            options.siren,
+            true
         );
-        logSuccess(`Got ${declareInformations.length || 0} declareInformations`);
         printDeclarationInformations(declareInformations);
       } catch (error) {
         logError('something was wrong during login to impots.gouv.fr : ' + error.message);

@@ -21,7 +21,7 @@ const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?i
 
 const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
-export const pageClosedHandler = async (browser, timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
+export const pageClosedHandler = async (browser, timeout = 2000): Promise<any> => new Promise( async (resolve, reject) => {
 
     if(!browser) resolve();
 
@@ -38,7 +38,7 @@ export const pageClosedHandler = async (browser, timeout = 1500): Promise<any> =
 
 });
 
-export const newPageHandler = (browser, timeout = 1500): Promise<any> => new Promise(async (resolve, reject) => {
+export const newPageHandler = (browser, timeout = 2000): Promise<any> => new Promise(async (resolve, reject) => {
 
     let done = false;
     setTimeout(() => {
@@ -56,17 +56,23 @@ export const newPageHandler = (browser, timeout = 1500): Promise<any> => new Pro
 
 export const clean = async (browser) => {
 
+    log(`Cleaning pages`);
+
     const pages = await browser.pages()
 
     if(pages && pages.length > 0) {
         for (let i = 0; i < pages.length; i++) {
             const p = pages[i];
             if(p) {
-                await p.close();
-                await pageClosedHandler(browser);
+                await Promise.all([
+                    pageClosedHandler(browser),
+                    p.close()
+                ])
             }
         }
     }
+
+    log(`Cleaning browser`);
 
     if(browser) {
         await browser.close();
@@ -93,21 +99,17 @@ const getAllDeclareInformations = async (
                 email, 
                 password, 
                 siren, 
-                false, 
+                !(i < (TYPES.length - 1)), 
                 Object.assign({}, context, { companySet: true }));
             res.push(r)
         }
-
-        await clean(context.browser);
-        delete context.browser;
-        delete context.page;
 
     } catch (e) {
 
         logError(e);
 
     } finally {
-
+        
         return flat(res);
 
     }
@@ -123,7 +125,7 @@ export const getDeclareInformations = async (
     context?: { browser: any, page: any, companySet: boolean }
   ) => {
 
-    log(`Start getting declare informations...`);
+    log(`Start getting ${type} declare informations...`);
 
     let url, path;
     switch (type) {
@@ -216,12 +218,16 @@ export const getDeclareInformations = async (
             });
 
             if(pageDeclarations) {
-                await pageDeclarations.close();
-                await pageClosedHandler(browser);
+                await Promise.all([
+                    pageClosedHandler(browser),
+                    pageDeclarations.close()
+                ]);
             }
 
         } catch (error) {
+
             logError(error);
+
         } finally {
 
             status.stop();

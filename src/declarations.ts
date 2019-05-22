@@ -21,6 +21,7 @@ export const declarations = (program: any) => {
       perf.start();
 
       try {
+
         options = await getCredentials(options);
         options.type = options.type || 'tva';
         const declarations: Array<Models.Declaration> = await actions.declarations(
@@ -31,14 +32,17 @@ export const declarations = (program: any) => {
           options.save,
           options.out,
         );
+
         logSuccess(`Got ${declarations.length} declaration(s)`);
         printDeclarations(declarations);
-
-        const results = perf.stop();
-        log(`Executed in ${results.time} ms`);
+        
       } catch (error) {
         logError('something was wrong during get declarations : ' + error.message);
       }
+
+      const results = perf.stop();
+      log(`Executed in ${results.time} ms`);
+
     });
 };
 
@@ -101,4 +105,5 @@ const printDeclarations = (declarations: Array<Models.Declaration>) => {
   });
 
   log(t1.render());
+  
 };

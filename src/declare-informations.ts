@@ -14,7 +14,9 @@ export const declareInformations = (program: any) => {
     .option('-t, --type <value>', 'Specify declaration type, default value is tva')
     .description(`Get your company's declare information by type (['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'])`)
     .action(async options => {
+
       try {
+
         options = await getCredentials(options);
         const declareInformations = await actions.getDeclareInformations(
             options.type,
@@ -22,11 +24,17 @@ export const declareInformations = (program: any) => {
             options.password,
             options.siren
         );
+
         printDeclarationInformations(declareInformations);
+
       } catch (error) {
+
         logError('something was wrong during login to impots.gouv.fr : ' + error.message);
+
       }
+
     });
+
 };
 
 const printDeclarationInformations = declarationsInformations => {

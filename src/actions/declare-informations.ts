@@ -1,5 +1,4 @@
 import { selectCompany } from './select-company';
-
 import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../helpers/logger';
 import { TIMEOUT } from './const';
 import { DeclareInformation } from '../models';
@@ -22,7 +21,7 @@ const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?i
 
 const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
-const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
+export const pageClosedHandler = async (browser, timeout = 1500): Promise<any> => new Promise( async (resolve, reject) => {
 
     if(!browser) resolve();
 
@@ -34,33 +33,43 @@ const pageClosedHandler = (browser, timeout = 1500): Promise<any> => new Promise
     }, timeout);
 
     browser.on('targetdestroyed',async (target) => {
-        resolve();
+        resolve(target);
     });
 
-})
+});
 
-const clean = async (browser, page) => {
+export const newPageHandler = (browser, timeout = 1500): Promise<any> => new Promise(async (resolve, reject) => {
 
-    try {
+    let done = false;
+    setTimeout(() => {
+        if(done === false) {
+            reject(`Timeout fired`);
+        }
+    }, timeout);
 
-        const pages = await browser.pages()
+    browser.on('targetcreated',async (target) => {
+        const p = await target.page();
+        resolve(p);
+    });
 
-        if(pages && pages.length > 0) {
-            for (let i = 0; i < pages.length; i++) {
-                const p = pages[i];
-                if(p) {
-                    await p.close();
-                    await pageClosedHandler(browser);
-                }
+});
+
+export const clean = async (browser) => {
+
+    const pages = await browser.pages()
+
+    if(pages && pages.length > 0) {
+        for (let i = 0; i < pages.length; i++) {
+            const p = pages[i];
+            if(p) {
+                await p.close();
+                await pageClosedHandler(browser);
             }
         }
+    }
 
-        if(browser) {
-            await browser.close();
-        }
-
-    } catch (error) {
-        
+    if(browser) {
+        await browser.close();
     }
     
 };
@@ -89,12 +98,18 @@ const getAllDeclareInformations = async (
             res.push(r)
         }
 
-        clean(context.browser, context.page);
+        await clean(context.browser);
+        delete context.browser;
+        delete context.page;
 
     } catch (e) {
 
+        logError(e);
+
     } finally {
+
         return flat(res);
+
     }
 
 }
@@ -107,6 +122,8 @@ export const getDeclareInformations = async (
     close = true,
     context?: { browser: any, page: any, companySet: boolean }
   ) => {
+
+    log(`Start getting declare informations...`);
 
     let url, path;
     switch (type) {
@@ -137,6 +154,7 @@ export const getDeclareInformations = async (
 
     if(!url && !path) {
 
+        log(`No "url" OR "path" set, getting all declare informations`);
         return await getAllDeclareInformations(email, password, siren);
 
     } else {
@@ -146,8 +164,6 @@ export const getDeclareInformations = async (
         status.start();
     
         let browser, page, declarations: Array<DeclareInformation> = [], pageDeclarations;
-
-        
 
         try {
 
@@ -162,27 +178,11 @@ export const getDeclareInformations = async (
 
             await page.goto(url, { timeout: TIMEOUT });
 
-            const newPageHandler = (timeout = 1500): Promise<any> => new Promise(async (resolve, reject) => {
-
-                let done = false;
-                setTimeout(() => {
-                    if(done === false) {
-                        reject(`Timeout fired`);
-                    }
-                }, timeout);
-
-                browser.on('targetcreated',async (target) => {
-                    const p = await target.page();
-                    resolve(p);
-                });
-
-            })
-
             const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
             await page.waitForSelector(selector, { timeout: TIMEOUT });
             await page.$eval('#ins_contenu > form', form => form.submit());
 
-            pageDeclarations = await newPageHandler();
+            pageDeclarations = await newPageHandler(browser);
 
             await pageDeclarations.waitForSelector('#periodeCalcule > table', { timeout: TIMEOUT });
             await Promise.all([
@@ -221,13 +221,13 @@ export const getDeclareInformations = async (
             }
 
         } catch (error) {
-
+            logError(error);
         } finally {
 
             status.stop();
 
             if(close === true) {
-                await clean(browser, page);
+                await clean(browser);
             }
 
             return declarations;
@@ -236,4 +236,4 @@ export const getDeclareInformations = async (
 
     }
 
-  };
+};

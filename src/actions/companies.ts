@@ -46,17 +46,14 @@ export const getCompanies = async (email: string, password: string, close = true
     // extract first page
     let companies = await extractCompanies(page);
 
-    companies = companies.concat(
-      await Promise.all(
-        links.map(async link => {
-          await page.goto(link, {
-            timeout: TIMEOUT,
-            waitUntil: 'domcontentloaded',
-          });
-          return await extractCompanies(page);
-        }),
-      ),
-    );
+    for await (const link of links) {
+      await page.goto(link, {
+        timeout: TIMEOUT,
+        waitUntil: 'domcontentloaded',
+      });
+      const extractedCompanies = await extractCompanies(page);
+      companies = companies.concat(extractedCompanies);
+    }
 
     companies = flat(companies);
 

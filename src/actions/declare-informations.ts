@@ -179,9 +179,19 @@ export const getDeclareInformations = async (
             }
 
             await page.goto(url, { timeout: TIMEOUT });
+            
+            await page.waitFor((type) => {
 
-            const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
-            await page.waitForSelector(selector, { timeout: TIMEOUT });
+                if(document.querySelector('.erreur')) {
+                    throw new Error(`${type} declare feature can't be achieved`);
+                } else {
+                    // form selector
+                    const selector = '#ins_contenu > form > table.buttonsDouble > tbody > tr > td.buttonsDoubleDec > input[type=image]';
+                    return !!document.querySelector(selector);
+                }
+
+            }, { timeout: TIMEOUT }, type);
+
             await page.$eval('#ins_contenu > form', form => form.submit());
 
             pageDeclarations = await newPageHandler(browser);

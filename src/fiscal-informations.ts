@@ -16,6 +16,11 @@ export const fiscalInformations = (program: any) => {
       try {
 
         options = await getCredentials(options);
+
+        if(!options.siren) {
+          throw new Error('siren parameter is required');
+        }
+
         const infos = await actions.getFiscalInformations(
             options.email,
             options.password,

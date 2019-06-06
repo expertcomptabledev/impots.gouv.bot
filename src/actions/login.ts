@@ -7,12 +7,17 @@ import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../help
 const IMPOTS_AUTH_URL = 'https://cfspro.impots.gouv.fr/mire/accueil.do';
 
 export const login = async (email: string, password: string, close = true): Promise<{ browser; page }> => {
+
+  email = email || process.env.IMPOTS_EMAIL;
+
   if (!email) {
-    throw new Error('email must be filled');
+    throw new Error('email must be filled or set in env variable "IMPOTS_EMAIL"');
   }
 
+  password = password || process.env.IMPOTS_PASSWORD;
+
   if (!password) {
-    throw new Error('password must be filled');
+    throw new Error('password must be filled or set in env variable "IMPOTS_PASSWORD"');
   }
 
   const status = new Spinner('Authenticating you to impots.gouv.fr, please wait...');

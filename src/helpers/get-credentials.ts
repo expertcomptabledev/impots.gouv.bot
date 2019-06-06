@@ -1,7 +1,8 @@
 const inquirer = require('inquirer');
+
 export const getCredentials = async options => {
   options.email =
-    options.email ||
+    options.email || process.env.IMPOTS_EMAIL ||
     (await inquirer
       .prompt([
         {
@@ -11,7 +12,7 @@ export const getCredentials = async options => {
       ])
       .then(res => res.email));
   options.password =
-    options.password ||
+    options.password || process.env.IMPOTS_PASSWORD ||
     (await inquirer
       .prompt([
         {

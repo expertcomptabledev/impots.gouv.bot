@@ -9,5 +9,6 @@ commands.login(program);
 commands.companies(program);
 commands.declarations(program);
 commands.declareInformations(program);
+commands.fiscalInformations(program);
 
 program.parse(process.argv);

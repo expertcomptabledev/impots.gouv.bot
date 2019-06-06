@@ -13,10 +13,14 @@ export const companies = (program: any) => {
     .description('Get your companies')
     .action(async options => {
       try {
+
         options = await getCredentials(options);
         const companies: Array<Models.Companie> = await actions.getCompanies(options.email, options.password);
+
         logSuccess(`Got ${companies.length || 0} companies`);
+
         printCompanies(companies);
+
       } catch (error) {
         logError('something was wrong during login to impots.gouv.fr : ' + error.message);
       }

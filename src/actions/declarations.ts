@@ -11,12 +11,22 @@ const CLI = require('clui');
 const Spinner = CLI.Spinner;
 var flat = require('array.prototype.flat');
 
-const typesDeclaration = {
+export const typesDeclaration = {
   tva: 'DeclarationsTVA',
   is: 'DeclarationsRP',
+  bic: 'DeclarationsRP',
+  bnc: 'DeclarationsRP',
   rcm: 'DeclarationsRCM',
   ts: 'DeclarationsTS',
   cvae: 'DeclarationsCVAE',
+};
+
+export const getLink = (links: Array<string>, _type: string) => {
+  if (Array.isArray(links)) {
+    return links.filter(l => l.indexOf(_type) > -1)[0] || null;
+  } else {
+    throw new Error('No links provided');
+  }
 };
 
 export const declarations = async (
@@ -42,13 +52,7 @@ export const declarations = async (
     await browser.close();
   };
 
-  const getLink = (links: Array<string>, _type: string) => {
-    if (Array.isArray(links)) {
-      return links.filter(l => l.indexOf(_type) > -1)[0] || null;
-    } else {
-      throw new Error('No links provided');
-    }
-  };
+  
 
   const { browser, page } = await getFiscalAccount(email, password, siren, false);
 

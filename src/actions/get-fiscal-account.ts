@@ -22,4 +22,5 @@ export const getFiscalAccount = async (email: string, password: string, siren: s
   } else {
     throw new Error('Something looks wrong during get fiscal account');
   }
+  
 };

@@ -7,6 +7,9 @@ const CLI = require('clui');
 const Spinner = CLI.Spinner;
 var flat = require('array.prototype.flat');
 
+import { newPageHandler, pageClosedHandler } from '../helpers/handlers';
+import { clean } from '../helpers/clean';
+
 const DECLARE_TVA_URL = 'https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?idth=declarer.e-declaration.tva&action=declarer';
 
 const DECLARE_IS_URL = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?idth=declarer.e-declaration.is&action=declarer-is`;
@@ -21,64 +24,9 @@ const DECLARE_RES = `https://cfspro.impots.gouv.fr/mire/afficherChoisirOCFI.do?i
 
 const TYPES = ['TVA', 'IS', 'TS', 'CVAE', 'RCM', 'RES'];
 
-export const pageClosedHandler = async (browser, timeout = 2000): Promise<any> => new Promise( async (resolve, reject) => {
 
-    if(!browser) resolve();
 
-    let done = false;
-    setTimeout(() => {
-        if(done === false) {
-            reject(`Timeout fired`);
-        }
-    }, timeout);
 
-    browser.on('targetdestroyed',async (target) => {
-        resolve(target);
-    });
-
-});
-
-export const newPageHandler = (browser, timeout = 2000): Promise<any> => new Promise(async (resolve, reject) => {
-
-    let done = false;
-    setTimeout(() => {
-        if(done === false) {
-            reject(`Timeout fired`);
-        }
-    }, timeout);
-
-    browser.on('targetcreated',async (target) => {
-        const p = await target.page();
-        resolve(p);
-    });
-
-});
-
-export const clean = async (browser) => {
-
-    log(`Cleaning pages`);
-
-    const pages = await browser.pages()
-
-    if(pages && pages.length > 0) {
-        for (let i = 0; i < pages.length; i++) {
-            const p = pages[i];
-            if(p) {
-                await Promise.all([
-                    pageClosedHandler(browser),
-                    p.close()
-                ])
-            }
-        }
-    }
-
-    log(`Cleaning browser`);
-
-    if(browser) {
-        await browser.close();
-    }
-    
-};
 
 const getAllDeclareInformations = async (
     email: string,

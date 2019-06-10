@@ -3,10 +3,9 @@ import { TIMEOUT } from './const';
 declare var document;
 import { log, logError, logSuccess, logPending, logJSON, logWarn } from '../helpers/logger';
 
-export const getFiscalAccount = async (email: string, password: string, siren: string, close = true) => {
+export const getFiscalAccountFromLoggedSession = async (browser, page, siren: string, close = true) => {
+  
   const url = `https://cfspro.impots.gouv.fr/webadelie/servlet/consulterEntreprise.html?&vue=usager&t=L&siren=${siren}`;
-
-  const { browser, page } = await login(email, password, false);
 
   await page.goto(url, {
     timeout: TIMEOUT,
@@ -22,5 +21,9 @@ export const getFiscalAccount = async (email: string, password: string, siren: s
   } else {
     throw new Error('Something looks wrong during get fiscal account');
   }
-  
+}
+
+export const getFiscalAccount = async (email: string, password: string, siren: string, close = true) => {
+  const { browser, page } = await login(email, password, false);
+  return await getFiscalAccountFromLoggedSession(browser, page, siren, close);
 };

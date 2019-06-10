@@ -10,12 +10,13 @@ export const companies = (program: any) => {
     .command('companies')
     .option('-e, --email <your-email>', 'Email used to create your impots.gouv.fr account')
     .option('-p, --password <your-password>', 'Password')
+    .option('-f, --fiscal', 'Fiscal')
     .description('Get your companies')
     .action(async options => {
       try {
 
         options = await getCredentials(options);
-        const companies: Array<Models.Companie> = await actions.getCompanies(options.email, options.password);
+        const companies: Array<Models.Companie> = await actions.getCompanies(options.email, options.password, options.fiscal);
 
         logSuccess(`Got ${companies.length || 0} companies`);
 
@@ -49,6 +50,24 @@ const printCompanies = companies => {
       formatter: function(value) {
         return value.toUpperCase();
       },
+    },
+    {
+      value: 'tva',
+      alias: 'Régime TVA',
+      align: 'left'
+    },
+    {
+      value: 'impot',
+      alias: 'Impôt',
+      align: 'left',
+      formatter: function(value) {
+        return value.toUpperCase();
+      },
+    },
+    {
+      value: 'regimeFiscal',
+      alias: 'Régime fiscal',
+      align: 'left'
     },
   ];
 
